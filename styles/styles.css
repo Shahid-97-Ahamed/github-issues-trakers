@@ -1,0 +1,94 @@
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.active-tab {
+  background: linear-gradient(90deg, #6610F2 0%, #4B00FF 100%) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.issue-card {
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.issue-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+}
+
+.issue-card.open {
+  border-top: 3px solid #10B981;
+}
+
+.issue-card.closed {
+  border-top: 3px solid #A855F7;
+}
+
+.issue-priority {
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 4px 10px;
+  line-height: 1;
+}
+
+.priority-high {
+  background: #FEE2E2;
+  color: #EF4444;
+}
+
+.priority-medium {
+  background: #FEF3C7;
+  color: #F59E0B;
+}
+
+.priority-low {
+  background: #F3F4F6;
+  color: #94A3B8;
+}
+
+.issue-label {
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid transparent;
+}
+
+.label-bug {
+  background: #FEF2F2;
+  color: #EF4444;
+  border-color: #FECACA;
+}
+
+.label-help-wanted {
+  background: #FFF7ED;
+  color: #F59E0B;
+  border-color: #FCD34D;
+}
+
+.label-enhancement {
+  background: #ECFDF5;
+  color: #10B981;
+  border-color: #86EFAC;
+}
+
+.issue-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.empty-box {
+  grid-column: 1 / -1;
+}
