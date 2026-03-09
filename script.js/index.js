@@ -36,7 +36,9 @@ loginForm.addEventListener("submit", (e) => {
     loginError.textContent = "Invalid username or password";
   }
 });
-
+logoutBtn.addEventListener("click", () => {
+  localStorage.removeItem("isLoggedIn");
+});
 
 
 
