@@ -20,37 +20,42 @@ const modalBody = document.getElementById("modalBody");
 let allIssues = [];
 let currentTab = "all";
 
+/* first show login page only */
+loginPage.classList.remove("hidden");
+mainPage.classList.add("hidden");
+
 /* login */
-loginForm.addEventListener("submit", (e) => {
+loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
 
   if (username === "admin" && password === "admin123") {
-    localStorage.setItem("isLoggedIn", "true");
     loginError.textContent = "";
-    showMainPage();
-    loadAllIssues();
+
+    loginPage.classList.add("hidden");
+    mainPage.classList.remove("hidden");
+
+    await loadAllIssues();
   } else {
     loginError.textContent = "Invalid username or password";
   }
 });
-function showMainPage() {
-  loginPage.classList.add("hidden");
-  mainPage.classList.remove("hidden");
-}
 
+/* logout */
+logoutBtn.addEventListener("click", () => {
+  mainPage.classList.add("hidden");
+  loginPage.classList.remove("hidden");
+  loginForm.reset();
+  loginError.textContent = "";
+  searchInput.value = "";
+  allIssues = [];
+  currentTab = "all";
 
-
-
-function checkAuth() {
-  if (localStorage.getItem("isLoggedIn") === "true") {
-    showMainPage();
-    loadAllIssues();
-  }
-}
-checkAuth();
+  tabButtons.forEach((btn) => btn.classList.remove("active-tab"));
+  document.querySelector('[data-tab="all"]').classList.add("active-tab");
+});
 
 /* loading */
 function showSpinner() {
@@ -69,7 +74,7 @@ async function loadAllIssues() {
 
     const res = await fetch(`${BASE_URL}/issues`);
     const data = await res.json();
-    allIssues = data.data || [];
+    allIssues = Array.isArray(data.data) ? data.data : [];
     applyFilterAndRender();
   } catch (error) {
     issuesContainer.innerHTML = `
@@ -77,6 +82,7 @@ async function loadAllIssues() {
         Failed to load issues
       </div>
     `;
+    issueCount.textContent = "0 Issues";
   } finally {
     hideSpinner();
   }
@@ -89,7 +95,7 @@ async function searchIssues(query) {
 
     const res = await fetch(`${BASE_URL}/issues/search?q=${encodeURIComponent(query)}`);
     const data = await res.json();
-    const searchedIssues = data.data || [];
+    const searchedIssues = Array.isArray(data.data) ? data.data : [];
     renderIssues(filterByTab(searchedIssues, currentTab));
   } catch (error) {
     issuesContainer.innerHTML = `
@@ -97,6 +103,7 @@ async function searchIssues(query) {
         Search failed
       </div>
     `;
+    issueCount.textContent = "0 Issues";
   } finally {
     hideSpinner();
   }
@@ -145,6 +152,7 @@ function applyFilterAndRender() {
 
 /* search */
 searchBtn.addEventListener("click", handleSearch);
+
 searchInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") handleSearch();
 });
@@ -175,7 +183,7 @@ function renderIssues(issues) {
   issues.forEach((issue) => {
     const status = (issue.status || "").toLowerCase();
     const priorityClass = getPriorityClass(issue.priority);
-    const labelsHTML = formatLabels(issue.label);
+    const labelsHTML = formatLabels(issue.labels);
 
     const card = document.createElement("div");
     card.className = `issue-card ${status}`;
@@ -208,13 +216,13 @@ function renderIssues(issues) {
       </div>
 
       <div class="border-t border-slate-200 px-4 py-3 text-[12px] text-slate-500 space-y-1">
-        <p>#${issue.id || issue._id || "N/A"} by ${issue.author || "john_doe"}</p>
+        <p>#${issue.id || "N/A"} by ${issue.author || "john_doe"}</p>
         <p>${formatDate(issue.createdAt)}</p>
       </div>
     `;
 
     card.addEventListener("click", async () => {
-      const fullIssue = await loadSingleIssue(issue.id || issue._id);
+      const fullIssue = await loadSingleIssue(issue.id);
       openModal(fullIssue || issue);
     });
 
@@ -230,9 +238,9 @@ function openModal(issue) {
       <p><span class="font-bold">Status:</span> ${issue.status || "N/A"}</p>
       <p><span class="font-bold">Author:</span> ${issue.author || "Unknown"}</p>
       <p><span class="font-bold">Priority:</span> ${issue.priority || "N/A"}</p>
-      <p><span class="font-bold">Label:</span> ${Array.isArray(issue.label) ? issue.label.join(", ") : (issue.label || "N/A")}</p>
+      <p><span class="font-bold">Labels:</span> ${Array.isArray(issue.labels) ? issue.labels.join(", ") : "N/A"}</p>
       <p><span class="font-bold">Created At:</span> ${formatDate(issue.createdAt)}</p>
-      <p><span class="font-bold">Issue ID:</span> ${issue.id || issue._id || "N/A"}</p>
+      <p><span class="font-bold">Issue ID:</span> ${issue.id || "N/A"}</p>
     </div>
   `;
   issueModal.showModal();
@@ -254,12 +262,10 @@ function getPriorityClass(priority) {
   return "priority-low";
 }
 
-function formatLabels(label) {
-  if (!label) {
+function formatLabels(labels) {
+  if (!labels || !Array.isArray(labels) || labels.length === 0) {
     return `<span class="issue-label label-bug">BUG</span>`;
   }
-
-  const labels = Array.isArray(label) ? label : [label];
 
   return labels.map((item) => {
     const text = String(item).toLowerCase();
