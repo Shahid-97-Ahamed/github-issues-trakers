@@ -37,16 +37,9 @@ loginForm.addEventListener("submit", (e) => {
   }
 });
 
-logoutBtn.addEventListener("click", () => {
-  localStorage.removeItem("isLoggedIn");
-  mainPage.classList.add("hidden");
-  loginPage.classList.remove("hidden");
-});
 
-function showMainPage() {
-  loginPage.classList.add("hidden");
-  mainPage.classList.remove("hidden");
-}
+
+
 
 function checkAuth() {
   if (localStorage.getItem("isLoggedIn") === "true") {
