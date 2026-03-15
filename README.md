@@ -15,7 +15,8 @@ https://shahid-97-ahamed.github.io/github-issues-trakers/
 
 ## 📸 Screenshot
 
-![App Screenshot](./assets/スクリーンショット 2026-03-15 231134.png)
+![App Screenshot](./assets/screenshot.png
+)
 
 ---
 
